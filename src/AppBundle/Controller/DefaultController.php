@@ -13,14 +13,6 @@ use Symfony\Component\HttpFoundation\Response;
 class DefaultController extends Controller
 {
     /**
-     * @Route("/fill", name="fill")
-     */
-    public function fillAction()
-    {
-
-    }
-
-    /**
      * @Route("/new", name="new")
      * @Method("POST")
      */
@@ -28,12 +20,12 @@ class DefaultController extends Controller
     {
 
         $entity = new \stdClass();
-        $entity->title = 'Какой-то заголовок'.rand();
-        $entity->content = 'Какой-то контент'.rand();
+        $entity->title = 'Some title'.rand();
+        $entity->content = 'Some content'.rand();
 
         $fs = new Filesystem();
 
-        $fs->dumpFile(__DIR__.'/../../../web/db/newFile'.rand(0,10).'.json', json_encode($entity));
+        $fs->dumpFile(__DIR__.'/../../../web/db/'.rand(0,10).'.json', json_encode($entity));
 
         $response = new JsonResponse($entity, 201);
 
@@ -59,28 +51,70 @@ class DefaultController extends Controller
             }
 
         }
-        $response = new JsonResponse($files, 200);
+        return new JsonResponse($files, 200);
 
-        $response->headers->set('Content-Type', 'application/json');
-
-        return $response;
     }
 
     /**
-     * @Route("/article/edit/{id}")
-     * @Method("PUT")
+     * @Route("/edit/{fileName}")
+     * @Method({"PUT", "PATCH"})
      */
-    public function editAction(Article $article)
+    public function editAction($fileName)
     {
+        $handle = opendir(__DIR__.'/../../../web/db');
 
+        $files = [];
+
+        while (false !== ($file = readdir($handle))) {
+
+            if ($file !== '.' && $file !== '..'){
+                $files[] = $file;
+            }
+        }
+
+        if (in_array($fileName.'.json', $files)){
+
+            $article = json_decode(file_get_contents(__DIR__.'/../../../web/db/'.$fileName.'.json'));
+
+            $article->title = 'Another title';
+
+            $article->content = 'Another content';
+
+            $fs = new Filesystem();
+
+            $fs->dumpFile(__DIR__.'/../../../web/db/'.$fileName.'.json', json_encode($article));
+
+            return new JsonResponse($article);
+        }
+
+        return new Response('File '.$fileName.' not found!', 404);
     }
 
     /**
-     * @Route("/article/remove/{id}")
+     * @Route("/remove/{fileName}")
      * @Method("DELETE")
      */
-    public function removeAction()
+    public function removeAction($fileName)
     {
+        $handle = opendir(__DIR__.'/../../../web/db');
+
+        $files = [];
+
+        while (false !== ($file = readdir($handle))) {
+
+            if ($file !== '.' && $file !== '..'){
+                $files[] = $file;
+
+            }
+
+        }
+        if (in_array($fileName.'.json', $files)){
+
+            unlink(__DIR__.'/../../../web/db/'.$fileName.'.json');
+
+        }
+
+        return new Response(null, 204);
 
     }
 
