@@ -5,9 +5,9 @@ To setup the project you should:
 2.Change directory to /hw7  
 3.composer install.  
 
-List of links:
-
-GET - '/',
-POST - '/new',
-PUT/PATCH - '/edit/{1-10}',
-DELETE - '/remove/{1-10}'. 
+List of links:  
+  
+POST - '/new',  
+PUT/PATCH - '/edit/{1-10}',  
+DELETE - '/remove/{1-10}',  
+GET - '/'.
